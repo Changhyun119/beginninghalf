@@ -10,15 +10,25 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
+import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.toy.attendance.dev.model.account.dto.AccountDto;
+import com.toy.attendance.dev.model.account.dto.AccountDto.AccountForInsert;
 import com.toy.attendance.dev.model.account.entity.Account;
 import com.toy.attendance.dev.model.account.repository.AccountRepository;
 
+@Transactional
 @Service
 public class AccountService {
     final String REST_API_KEY = "683a25bcc3f527d02f9db7c483c99196";
@@ -87,7 +97,7 @@ public class AccountService {
             if(!(rModelMap.getAttribute("success").equals("ok")) ) {
                 throw new Exception("Fail Kakao API Login");
             }
-            rModelMap = this.signIn(rModelMap);
+            // rModelMap = this.signIn(rModelMap);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -138,7 +148,7 @@ public class AccountService {
      
             System.out.println("id : " + id);
             System.out.println("email : " + email);
-            AccountDto.accountForInsert dto = new AccountDto.accountForInsert();
+            AccountForInsert dto = new AccountForInsert();
             dto.setKakaoId(id);
             dto.setNickname(nickname);
             dto.setEmail(email);
@@ -157,11 +167,11 @@ public class AccountService {
             return rModelMap;
     }
     
-    public ModelMap signIn(ModelMap getModelMap) {
+    public ModelMap signIn(AccountForInsert request, HttpSession session, HttpServletResponse response) {
         ModelMap rModelMap = new ModelMap();
 
         try {
-            AccountDto.accountForInsert dto = (AccountDto.accountForInsert) getModelMap.getAttribute("kakaoUserInfo");
+            AccountForInsert dto = request;
             Account account = accountRepository.findByKakaoIdAndUseYn(dto.getKakaoId(),"Y");
             if( Objects.isNull(account) ) {
                 account = this.signUp(dto);
@@ -170,12 +180,29 @@ public class AccountService {
                     rModelMap.addAttribute("reason", "계정이 생성되지 않음");
                     return rModelMap; 
                 }
-            }
+            }// 위 조건에 따라 account 는 null이 아님
 
-            // 위 조건에 따라 account 는 null이 아님
+            session.setAttribute("nickname", account.getNickname());
+            session.setAttribute("accountId", account.getAccountId());
+            session.setAttribute("kakaoId", account.getKakaoId());
+            System.out.println(session);
+
+            AccountDto.SignInResponse signInResponse = new AccountDto.SignInResponse();
+            signInResponse.setNickname(account.getNickname());
+            signInResponse.setAccountId(account.getAccountId());
+            signInResponse.setKakaoId(account.getKakaoId());
             
             rModelMap.addAttribute("success", "ok");
-            rModelMap.addAttribute("attendanceUser", account);
+            rModelMap.addAttribute("attendanceUser", signInResponse);
+
+             // 자동로그인
+             if (request.getIsAutoLogin()) {
+                // 쿠키정보 저장
+                Cookie cookie = new Cookie("autoLoginAttendance", String.valueOf((Long) account.getKakaoId()));
+                cookie.setMaxAge(7 * 24 * 60 * 60);
+                cookie.setPath("/");
+                response.addCookie(cookie);
+            }
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -184,8 +211,8 @@ public class AccountService {
        }
        return rModelMap;
     }
-
-    public Account signUp(AccountDto.accountForInsert dto) {
+    
+    public Account signUp(AccountForInsert dto) {
         try {
             System.out.println("Sign Up !");
             System.out.println(dto);
@@ -194,7 +221,6 @@ public class AccountService {
                 .email(dto.getEmail())
                 .nickname(dto.getNickname())
                 .kakaoId(dto.getKakaoId())
-                .useYn(dto.getUseYn())
                 .build()
             );
             
@@ -207,4 +233,90 @@ public class AccountService {
        
          
     }
+
+    public ModelMap signOut(HttpSession session, HttpServletResponse response) {
+        // 리턴 ModelMap
+        ModelMap rModelMap = new ModelMap();
+        
+
+       
+
+        try {
+            // 세션 초기화
+            rModelMap.addAttribute("success", "ok");
+            session.invalidate();
+            
+            // 쿠키 초기화
+            Cookie cookie = new Cookie("autoLoginAttendance", null);
+            cookie.setMaxAge(0);
+            cookie.setPath("/");
+            response.addCookie(cookie);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            rModelMap.addAttribute("success", "fail");
+            rModelMap.addAttribute("reason", "unKnown cause");
+        }
+
+        return rModelMap;
+    }
+
+
+    public ModelMap sessionCheck(HttpServletRequest hRequest, HttpSession session) {
+        // 변수 설정
+        Long kakaoId = null;
+        String nickname = "";
+        Long accountId = null;
+        String success = "fail";
+
+        // 리턴 ModelMap
+        ModelMap rModelMap = new ModelMap();
+
+        // 쿠키 정보
+        Cookie[] cookies = hRequest.getCookies();
+        if (Objects.nonNull(cookies)) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("autoLoginAttendance")) {
+                    kakaoId = Long.valueOf(cookie.getValue());
+                }
+            }
+        }
+
+        // 세션 정보 존재하는 경우
+        if (Objects.nonNull(session.getAttribute("kakaoId"))) {
+            kakaoId = Long.valueOf(session.getAttribute("kakaoId").toString());
+            nickname = session.getAttribute("nickname").toString();
+            accountId =  Long.valueOf(session.getAttribute("accountId").toString());
+            success = "ok";
+        }
+        // 쿠키 정보 존재하는 경우
+        else if (Objects.isNull(kakaoId)) {
+            Account account = accountRepository.findByKakaoIdAndUseYn(kakaoId, "Y");
+            if (Objects.nonNull(account)) {
+                nickname = account.getNickname();
+                kakaoId = account.getKakaoId();
+                accountId =account.getAccountId();
+                success = "ok";
+
+                session.setAttribute("accountId", accountId);
+                session.setAttribute("nickname", nickname);
+                session.setAttribute("kakaoId", kakaoId);
+
+                
+            }
+        }
+
+        AccountDto.SignInResponse signInResponse = new AccountDto.SignInResponse();
+        signInResponse.setNickname(nickname);
+        signInResponse.setAccountId( accountId );
+        signInResponse.setKakaoId( kakaoId );
+
+        // 리턴 정보
+        rModelMap.addAttribute("success", success);
+        rModelMap.addAttribute("attendanceUser", signInResponse);
+
+        return rModelMap;
+    }
+
+   
 }

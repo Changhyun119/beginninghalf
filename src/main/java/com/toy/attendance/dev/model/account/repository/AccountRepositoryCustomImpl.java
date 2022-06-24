@@ -1,6 +1,5 @@
 package com.toy.attendance.dev.model.account.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 
 import com.toy.attendance.dev.model.account.entity.Account;
