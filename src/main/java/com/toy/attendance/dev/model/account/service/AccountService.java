@@ -32,7 +32,7 @@ import com.toy.attendance.dev.model.account.repository.AccountRepository;
 @Service
 public class AccountService {
     final String REST_API_KEY = "683a25bcc3f527d02f9db7c483c99196";
-    final String REDIRECT_URI = "http://localhost:11945/app/kakao/oauth";
+    final String REDIRECT_URI = "http://3.37.185.41/app/kakao/oauth";
 
     private final AccountRepository accountRepository;
 
