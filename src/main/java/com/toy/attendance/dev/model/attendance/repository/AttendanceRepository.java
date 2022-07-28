@@ -16,7 +16,6 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long>, A
 
     Attendance findByAttendanceIdAndUseYn(Long attendanceId, String string);
 
-    
     List<Attendance> findAllByUseYn(String string);
 
     

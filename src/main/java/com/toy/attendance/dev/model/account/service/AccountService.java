@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.transaction.Transactional;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.StringUtils;
@@ -31,8 +32,13 @@ import com.toy.attendance.dev.model.account.repository.AccountRepository;
 @Transactional
 @Service
 public class AccountService {
-    final String REST_API_KEY = "683a25bcc3f527d02f9db7c483c99196";
-    final String REDIRECT_URI = "http://3.37.185.41/app/kakao/oauth";
+
+    @Value("${REDIRECT_URI}")
+    private String REDIRECT_URI;
+
+    @Value("${REST_API_KEY}")
+    private String REST_API_KEY;
+
 
     private final AccountRepository accountRepository;
 
@@ -65,11 +71,15 @@ public class AccountService {
             sb.append("&code=" + code);
             bw.write(sb.toString());
             bw.flush();
+            System.out.println(sb.toString());
 
+           
             //결과 코드가 200이라면 성공
             int responseCode = conn.getResponseCode();
+            String resMeg =    conn.getResponseMessage();
+           
             System.out.println("responseCode : " + responseCode);
-
+            System.out.println("responseMessage : " + resMeg );
             //요청을 통해 얻은 JSON타입의 Response 메세지 읽어오기
             BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(),"UTF-8"));
             String line = "";
@@ -105,9 +115,10 @@ public class AccountService {
             rModelMap.addAttribute("reason", "unKnown cause");
 
         }
-
+        System.out.println(REDIRECT_URI);
         return rModelMap;
     }
+    
     @SuppressWarnings("unchecked")
     public ModelMap getKakaoUser(String accessToken) {
         String reqURL = "https://kapi.kakao.com/v2/user/me";

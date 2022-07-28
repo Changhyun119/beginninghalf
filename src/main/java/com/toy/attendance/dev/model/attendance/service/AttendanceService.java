@@ -173,12 +173,12 @@ public class AttendanceService {
             return false;
     }
 
-    public ModelMap list() {
+    public ModelMap list(AttendanceDto.attendanceListRequest request) {
         ModelMap rModelMap = new ModelMap();
     
         try {
             rModelMap.addAttribute("success", "ok");
-            rModelMap.addAttribute("attendanceList", attendanceRepository.findAllByUseYn("Y"));
+            rModelMap.addAttribute("attendanceList", attendanceRepository.findAllList(request));
 
         }
         catch (Exception e) {

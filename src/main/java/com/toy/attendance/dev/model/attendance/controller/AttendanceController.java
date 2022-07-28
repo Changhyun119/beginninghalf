@@ -59,9 +59,17 @@ public class AttendanceController {
     @GetMapping("/list")
     @ApiOperation(value="출석 목록 API", notes=" ")
     public ResponseEntity<ModelMap> getAttendance() throws Exception{
-        ModelMap rModelMap = attendanceService.list();
+        AttendanceDto.attendanceListRequest request = new AttendanceDto.attendanceListRequest();
+        ModelMap rModelMap = attendanceService.list(request);
         
         return ResponseEntity.ok(rModelMap);
     }
 
+    @PostMapping("/list-on-date")
+    @ApiOperation(value="특정 날짜 출석 API", notes="Parameter : {'attendanceDate' : 'YYYY-MM-DD'} ")
+    public ResponseEntity<ModelMap> getAttendanceByAttendaceDate(@RequestBody AttendanceDto.attendanceListRequest request) throws Exception{
+        ModelMap rModelMap = attendanceService.list(request);
+        
+        return ResponseEntity.ok(rModelMap);
+    }
 }
