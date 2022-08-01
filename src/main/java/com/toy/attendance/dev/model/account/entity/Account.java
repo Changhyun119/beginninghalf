@@ -1,6 +1,8 @@
 package com.toy.attendance.dev.model.account.entity;
 
 import java.io.Serializable;
+import java.math.BigInteger;
+import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,9 +13,10 @@ import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-
+import org.hibernate.annotations.UpdateTimestamp;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -32,7 +35,7 @@ public class Account implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)  // 테이블 컬럼 -> set default() 로 sequence 가 설정되어있어야함
     @Column(name = "account_id")
-    private Long accountId;
+    private BigInteger accountId;
 
     @Column(name = "email")
     private String email;
@@ -41,7 +44,15 @@ public class Account implements Serializable {
     private String nickname;
 
     @Column(name = "kakao_id")
-    private Long kakaoId;
+    private BigInteger kakaoId;
+
+    @Column(name = "reg_date")
+    @CreationTimestamp
+    private LocalDateTime regDate;
+
+    @Column(name = "updt_date")
+    @UpdateTimestamp
+    private LocalDateTime updtDate;
 
     @Column(name = "use_yn")
     private String useYn;
@@ -53,10 +64,10 @@ public class Account implements Serializable {
 
     @Builder
     public Account(
-        Long accountId,
+        BigInteger accountId,
         String email,
         String nickname,
-        Long kakaoId
+        BigInteger kakaoId
     ) {
         this.accountId = accountId;
         this.email = email;

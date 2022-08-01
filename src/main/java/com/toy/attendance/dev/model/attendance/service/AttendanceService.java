@@ -1,5 +1,6 @@
 package com.toy.attendance.dev.model.attendance.service;
 
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,12 +32,12 @@ public class AttendanceService {
         this.accountService = accountService;
     }
 
-    
+    @Transactional
     public ModelMap entry(attendanceForInsert request,HttpSession session) {
         ModelMap rModelMap = new ModelMap();
         
         try {
-            Long accountId = (Long) session.getAttribute("accountId");
+            BigInteger accountId = (BigInteger) session.getAttribute("accountId");
             System.out.println(accountId);
             if(Objects.isNull(accountId)) {
                 rModelMap.addAttribute("success", "fail");
@@ -58,6 +59,7 @@ public class AttendanceService {
                 .accountId(accountId)
                 .attendanceDate(request.getAttendanceDate())
                 .mealStatus(request.getMealStatus())
+                .locationId(request.getLocationId())
                 .build()
             );
 
@@ -82,7 +84,7 @@ public class AttendanceService {
        return rModelMap;
     }
 
-
+    @Transactional
     public ModelMap change(attendanceForUpdate request, HttpSession session) {
         ModelMap rModelMap = new ModelMap();
     
@@ -106,6 +108,7 @@ public class AttendanceService {
             AttendanceDto.dsAttendance attendanceDto = new AttendanceDto.dsAttendance();
             attendanceDto.setAttendanceDate(request.getAttendanceDate());
             attendanceDto.setMealStatus(request.getMealStatus());
+            attendanceDto.setLocationId(request.getLocationId());
             attendance.updateAttendance(attendanceDto);
 
             rModelMap.addAttribute("success", "ok");
@@ -125,7 +128,7 @@ public class AttendanceService {
 
     }
 
-
+    @Transactional
     public ModelMap cancel(attendanceForDelete request, HttpSession session) {
         ModelMap rModelMap = new ModelMap();
     
@@ -145,8 +148,11 @@ public class AttendanceService {
                 rModelMap.addAttribute("attendance", Collections.emptyList());
                 return rModelMap;
             }
+            AttendanceDto.dsAttendance attendanceDto = new AttendanceDto.dsAttendance();
+            attendanceDto.setUseYn("N");
+            attendance.updateAttendance(attendanceDto);
 
-            attendanceRepository.delete(attendance);
+            
 
             rModelMap.addAttribute("success", "ok");
         }
@@ -163,7 +169,7 @@ public class AttendanceService {
     
    
     public Boolean sessionIsNull(HttpSession session) {
-        Long accountId = (Long) session.getAttribute("accountId");
+        BigInteger accountId = (BigInteger) session.getAttribute("accountId");
             System.out.println("checkSessionNull@@");
             System.out.println(accountId);
             if(Objects.isNull(accountId) ) {
@@ -173,6 +179,7 @@ public class AttendanceService {
             return false;
     }
 
+    @Transactional
     public ModelMap list(AttendanceDto.attendanceListRequest request) {
         ModelMap rModelMap = new ModelMap();
     
@@ -192,7 +199,7 @@ public class AttendanceService {
 
        return rModelMap;
     }
-
+    @Transactional
     public ModelMap sample() {
         ModelMap rModelMap = new ModelMap();
     

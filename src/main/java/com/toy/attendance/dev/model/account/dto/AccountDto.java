@@ -1,5 +1,6 @@
 package com.toy.attendance.dev.model.account.dto;
 
+import java.math.BigInteger;
 import java.sql.Date;
 
 import lombok.Getter;
@@ -20,7 +21,7 @@ public class AccountDto {
         
         private String email;
         private String nickname;
-        private Long kakaoId;
+        private BigInteger kakaoId;
         private Boolean isAutoLogin = false;
     }
 
@@ -28,8 +29,8 @@ public class AccountDto {
     @Setter
     public static class SignInResponse {
         private String nickname;
-        private Long accountId;
-        private Long kakaoId;
+        private BigInteger accountId;
+        private BigInteger kakaoId;
     }
 
 }

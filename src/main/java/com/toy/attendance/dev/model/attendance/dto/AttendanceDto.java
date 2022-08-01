@@ -24,6 +24,7 @@ public class AttendanceDto {
         @Temporal(TemporalType.DATE)
         private Date attendanceDate;
         private String mealStatus = "N";
+        private BigInteger locationId;
         
     }
 
@@ -32,10 +33,11 @@ public class AttendanceDto {
     @ToString
     @NoArgsConstructor
     public static class attendanceForUpdate {
-        private Long attendanceId;
+        private BigInteger attendanceId;
         @Temporal(TemporalType.DATE)
         private Date attendanceDate;
         private String mealStatus = "N";
+        private BigInteger locationId;
     }
 
     @Getter
@@ -43,7 +45,7 @@ public class AttendanceDto {
     @ToString
     @NoArgsConstructor
     public static class attendanceForDelete {
-        private Long attendanceId;
+        private BigInteger attendanceId;
     }
     
     @Getter
@@ -100,18 +102,24 @@ public class AttendanceDto {
     @ToString
     @NoArgsConstructor
     public static class dsAttendance {
-        private Long accountId;
+        private BigInteger accountId;
         private Date attendanceDate;
         private String mealStatus;
+        private BigInteger locationId;
+        private String useYn;
    
         public dsAttendance (
-            Long accountId,
+            BigInteger accountId,
             Date attendanceDate,
-            String mealStatus
+            String mealStatus,
+            BigInteger locationId,
+            String useYn
         ) {
             this.accountId = accountId;
             this.attendanceDate = attendanceDate;
             this.mealStatus = mealStatus;
+            this.locationId = locationId;
+            this.useYn = useYn;
         }
     }
 

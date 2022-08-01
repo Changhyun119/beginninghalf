@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -149,7 +150,7 @@ public class AccountService {
             ObjectMapper mapper = new ObjectMapper();
             Map<String, Object> map = mapper.readValue(result, Map.class);
             System.out.println("map : " + map);
-            Long id = (Long) map.get("id") ;
+            BigInteger id = (BigInteger) map.get("id") ;
             String nickname =  (String) ((Map<String,Object>) map.get("properties")).get("nickname");
             boolean hasEmail = (boolean) ((Map<String,Object>) map.get("kakao_account")).get("has_email");
             String email = "";
@@ -209,7 +210,7 @@ public class AccountService {
              // 자동로그인
              if (request.getIsAutoLogin()) {
                 // 쿠키정보 저장
-                Cookie cookie = new Cookie("autoLoginAttendance", String.valueOf((Long) account.getKakaoId()));
+                Cookie cookie = new Cookie("autoLoginAttendance", String.valueOf((BigInteger) account.getKakaoId()));
                 cookie.setMaxAge(7 * 24 * 60 * 60);
                 cookie.setPath("/");
                 response.addCookie(cookie);
@@ -275,9 +276,9 @@ public class AccountService {
 
     public ModelMap sessionCheck(HttpServletRequest hRequest, HttpSession session) {
         // 변수 설정
-        Long kakaoId = null;
+        BigInteger kakaoId = null;
         String nickname = "";
-        Long accountId = null;
+        BigInteger accountId = null;
         String success = "fail";
 
         // 리턴 ModelMap
@@ -288,16 +289,16 @@ public class AccountService {
         if (Objects.nonNull(cookies)) {
             for (Cookie cookie : cookies) {
                 if (cookie.getName().equals("autoLoginAttendance")) {
-                    kakaoId = Long.valueOf(cookie.getValue());
+                    kakaoId = new BigInteger(cookie.getValue());
                 }
             }
         }
 
         // 세션 정보 존재하는 경우
         if (Objects.nonNull(session.getAttribute("kakaoId"))) {
-            kakaoId = Long.valueOf(session.getAttribute("kakaoId").toString());
+            kakaoId = new BigInteger(session.getAttribute("kakaoId").toString());
             nickname = session.getAttribute("nickname").toString();
-            accountId =  Long.valueOf(session.getAttribute("accountId").toString());
+            accountId = new BigInteger(session.getAttribute("accountId").toString());
             success = "ok";
         }
         // 쿠키 정보 존재하는 경우

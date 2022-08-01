@@ -46,12 +46,14 @@ public class AccountController {
 
     @PostMapping("/sign-in")
     @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(value="signIn API", notes="로그인")
     public ResponseEntity<ModelMap> signIn(@RequestBody AccountForInsert request, HttpSession session, HttpServletResponse response) {
         ModelMap rModelMap = accountService.signIn(request, session, response);
         return ResponseEntity.ok(rModelMap);
     }
 
     @PostMapping("/session")
+    @ApiOperation(value="session API", notes="세션 체크")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<ModelMap> sessionCheck(HttpSession session,HttpServletRequest request) {
         ModelMap rModelMap = accountService.sessionCheck(request, session);

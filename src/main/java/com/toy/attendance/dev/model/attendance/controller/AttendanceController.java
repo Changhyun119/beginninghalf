@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequestMapping("/atndn")
-@Api(tags = "#2.Attendance Controller", value = "/", description = "")
+@Api(tags = "#2.Attendance Controller", value = "/atndn", description = "")
 public class AttendanceController {
     
     private final AttendanceService attendanceService;
