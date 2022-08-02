@@ -20,17 +20,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.transaction.Transactional;
 
-import org.checkerframework.checker.units.qual.mol;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
-import org.springframework.util.StringUtils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.toy.attendance.dev.model.account.dto.AccountDto;
-import com.toy.attendance.dev.model.account.dto.AccountDto.AccountForInsert;
-import com.toy.attendance.dev.model.account.entity.Account;
-import com.toy.attendance.dev.model.account.repository.AccountRepository;
 import com.toy.attendance.dev.model.location.dto.LocationDto;
 import com.toy.attendance.dev.model.location.entity.Location;
 import com.toy.attendance.dev.model.location.repository.LocationRepository;
@@ -185,6 +177,8 @@ public class LocationService {
         rModelMap.addAttribute("reason", "유저 정보가 없습니다! 로그인 필요");
         return rModelMap;
     }
+
+
     @Transactional
     public ModelMap list(LocationDto.locationListRequest request) {
         ModelMap rModelMap = new ModelMap();
@@ -201,8 +195,6 @@ public class LocationService {
             rModelMap.addAttribute("locationList", Collections.emptyList());
 
        }
-
-
        return rModelMap;
     }
     

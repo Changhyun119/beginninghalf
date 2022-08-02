@@ -39,12 +39,11 @@ public class AttendanceService {
         try {
             BigInteger accountId = (BigInteger) session.getAttribute("accountId");
             System.out.println(accountId);
-            if(Objects.isNull(accountId)) {
-                rModelMap.addAttribute("success", "fail");
-                rModelMap.addAttribute("reason", "유저 정보가 없습니다! 로그인 필요");
-                rModelMap.addAttribute("attendance", Collections.emptyList());
+            if(this.sessionIsNull(session)) {
+                rModelMap = this.failSessionCheck(rModelMap);
                 return rModelMap;
             }
+
             Attendance attendance = attendanceRepository.findByAccountIdAndAttendanceDateAndUseYn(accountId,request.getAttendanceDate(),"Y");
             if (Objects.nonNull(attendance)) {
                 System.out.println("Data Exists!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
@@ -90,10 +89,8 @@ public class AttendanceService {
     
         try {
             
-            if(this.sessionIsNull(session) ) {
-                rModelMap.addAttribute("success", "fail");
-                rModelMap.addAttribute("reason", "유저 정보가 없습니다! 로그인 필요");
-                rModelMap.addAttribute("attendance", Collections.emptyList());
+            if(this.sessionIsNull(session)) {
+                rModelMap = this.failSessionCheck(rModelMap);
                 return rModelMap;
             }
 
@@ -133,10 +130,8 @@ public class AttendanceService {
         ModelMap rModelMap = new ModelMap();
     
         try {
-            if(this.sessionIsNull(session) ) {
-                rModelMap.addAttribute("success", "fail");
-                rModelMap.addAttribute("reason", "유저 정보가 없습니다! 로그인 필요");
-                rModelMap.addAttribute("attendance", Collections.emptyList());
+            if(this.sessionIsNull(session)) {
+                rModelMap = this.failSessionCheck(rModelMap);
                 return rModelMap;
             }
 
@@ -175,8 +170,13 @@ public class AttendanceService {
             if(Objects.isNull(accountId) ) {
                 return true;
             }
-
+           
             return false;
+    }
+    public ModelMap failSessionCheck(ModelMap rModelMap) {
+        rModelMap.addAttribute("success", "fail");
+        rModelMap.addAttribute("reason", "유저 정보가 없습니다! 로그인 필요");
+        return rModelMap;
     }
 
     @Transactional
