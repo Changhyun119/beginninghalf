@@ -25,6 +25,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.Setter;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -61,8 +62,9 @@ public class Attendance implements Serializable {
     @Column(name = "meal_status")
     private String mealStatus;
 
+    @Setter
     @Column(name = "location_id")
-    private BigInteger locataionId;
+    private BigInteger locationId;
 
     @PrePersist
     public void prePersist() {
@@ -80,7 +82,7 @@ public class Attendance implements Serializable {
         this.accountId = accountId;
         this.attendanceDate = attendanceDate;
         this.mealStatus = mealStatus;
-        this.locataionId = locationId;
+        this.locationId = locationId;
         this.useYn = useYn;
     }
 
@@ -88,7 +90,7 @@ public class Attendance implements Serializable {
         this.updtDate = LocalDateTime.now();
         if (Objects.nonNull(dto.getAttendanceDate())) this.attendanceDate = dto.getAttendanceDate();
         if (Objects.nonNull(dto.getMealStatus())) this.mealStatus = dto.getMealStatus();
-        if (Objects.nonNull(dto.getLocationId())) this.locataionId = dto.getLocationId();
+        if (Objects.nonNull(dto.getLocationId())) this.locationId = dto.getLocationId();
         if (Objects.nonNull(dto.getUseYn())) this.useYn = dto.getUseYn();
     }
 }

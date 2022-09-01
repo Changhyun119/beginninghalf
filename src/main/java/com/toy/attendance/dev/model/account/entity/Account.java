@@ -3,6 +3,7 @@ package com.toy.attendance.dev.model.account.entity;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,6 +18,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.UpdateTimestamp;
+
+import com.toy.attendance.dev.model.account.dto.AccountDto;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -57,6 +60,9 @@ public class Account implements Serializable {
     @Column(name = "use_yn")
     private String useYn;
 
+    @Column(name = "admin_status")
+    private String adminStatus;
+
     @PrePersist
     public void prePersist() {
         this.useYn = this.useYn == null ? "Y" : this.useYn;
@@ -73,5 +79,12 @@ public class Account implements Serializable {
         this.email = email;
         this.nickname = nickname;
         this.kakaoId = kakaoId;
+    }
+
+    public void updateAccount(AccountDto.dsAccount dto) {
+        this.updtDate = LocalDateTime.now();
+        if (Objects.nonNull(dto.getAccountId())) this.accountId = dto.getAccountId();
+        if (Objects.nonNull(dto.getUseYn())) this.useYn = dto.getUseYn();
+        if (Objects.nonNull(dto.getAdminStatus())) this.adminStatus = dto.getAdminStatus();
     }
 }

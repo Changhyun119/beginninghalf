@@ -90,12 +90,68 @@ public class AttendanceDto {
     }
 
     @Getter
+    @ToString
+    @NoArgsConstructor
+    public static class attendanceStatusListResponse {
+        private BigInteger accountId;
+        private String nickname;
+        private String regDate;
+        private BigInteger attendanceAccount;
+       
+        public attendanceStatusListResponse (
+            BigInteger accountId,
+            String nickname,
+            String regDate,
+            BigInteger attendanceAccount
+        ) {
+          
+            this.accountId = accountId;
+            this.nickname = nickname;
+            this.regDate = regDate;
+            this.attendanceAccount = attendanceAccount;
+        }
+       
+    }
+    
+    @Getter
     @Setter
     @ToString
     @NoArgsConstructor
-    public static class attendanceListRequest {
-        private Date attendanceDate;
+    public static class attendanceListRequestByYearAndMonth { //Controller 에서 이용하는 DTO , (list, attendance-status-on-month)
+        private String year; // 월별
+        private String month; // 월별
     }
+
+    @Getter
+    @Setter
+    @ToString
+    @NoArgsConstructor
+    public static class attendanceListRequestByAttendanceDate { //Controller 에서 이용하는 DTO , (list-on-date)
+        private Date attendanceDate; // 일별
+     
+    }
+
+    @Getter
+    @Setter
+    @ToString
+    @NoArgsConstructor
+    public static class attendanceListRequest { // service 단에서 이용할 DTO , 월별 혹은 특정일로 서치 가능하게 파라미터 종류 구분됨
+        private Date attendanceDate; // 일별
+        private String year; // 월별
+        private String month; // 월별
+    }
+
+
+    @Getter
+    @Setter
+    @ToString
+    @NoArgsConstructor
+    public static class attendanceStatusListRequest { // service 단에서 이용할 DTO , 월별 혹은 특정일로 서치 가능하게 파라미터 종류 구분됨
+        private String year; // 월별
+        private String month; // 월별
+    }
+    
+
 
     @Getter
     @Setter

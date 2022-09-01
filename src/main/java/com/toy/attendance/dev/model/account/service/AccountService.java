@@ -9,6 +9,7 @@ import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -27,6 +28,8 @@ import org.springframework.util.StringUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.toy.attendance.dev.model.account.dto.AccountDto;
 import com.toy.attendance.dev.model.account.dto.AccountDto.AccountForInsert;
+import com.toy.attendance.dev.model.account.dto.AccountDto.AccountForPermitAdmin;
+import com.toy.attendance.dev.model.account.dto.AccountDto.AccountForRemove;
 import com.toy.attendance.dev.model.account.entity.Account;
 import com.toy.attendance.dev.model.account.repository.AccountRepository;
 
@@ -197,12 +200,14 @@ public class AccountService {
             session.setAttribute("nickname", account.getNickname());
             session.setAttribute("accountId", account.getAccountId());
             session.setAttribute("kakaoId", account.getKakaoId());
+            session.setAttribute("adminStatus", account.getAdminStatus());
             System.out.println(session);
 
             AccountDto.SignInResponse signInResponse = new AccountDto.SignInResponse();
             signInResponse.setNickname(account.getNickname());
             signInResponse.setAccountId(account.getAccountId());
             signInResponse.setKakaoId(account.getKakaoId());
+            signInResponse.setAdminStatus(account.getAdminStatus());
             
             rModelMap.addAttribute("success", "ok");
             rModelMap.addAttribute("attendanceUser", signInResponse);
@@ -226,6 +231,10 @@ public class AccountService {
     
     public Account signUp(AccountForInsert dto) {
         try {
+            Account checkAccount = accountRepository.findByKakaoIdAndUseYn(dto.getKakaoId(),"N");
+
+            if ( Objects.nonNull(checkAccount) ) return null; // 이미 존재했던 사용자 , 회원가입 거절
+
             System.out.println("Sign Up !");
             System.out.println(dto);
             Account account = accountRepository.save(
@@ -249,9 +258,6 @@ public class AccountService {
     public ModelMap signOut(HttpSession session, HttpServletResponse response) {
         // 리턴 ModelMap
         ModelMap rModelMap = new ModelMap();
-        
-
-       
 
         try {
             // 세션 초기화
@@ -279,6 +285,7 @@ public class AccountService {
         BigInteger kakaoId = null;
         String nickname = "";
         BigInteger accountId = null;
+        String adminStatus ="";
         String success = "fail";
 
         // 리턴 ModelMap
@@ -299,6 +306,7 @@ public class AccountService {
             kakaoId = new BigInteger(session.getAttribute("kakaoId").toString());
             nickname = session.getAttribute("nickname").toString();
             accountId = new BigInteger(session.getAttribute("accountId").toString());
+            adminStatus = session.getAttribute("adminStatus").toString();
             success = "ok";
         }
         // 쿠키 정보 존재하는 경우
@@ -308,11 +316,14 @@ public class AccountService {
                 nickname = account.getNickname();
                 kakaoId = account.getKakaoId();
                 accountId =account.getAccountId();
+                adminStatus = account.getAdminStatus();
+                
                 success = "ok";
 
                 session.setAttribute("accountId", accountId);
                 session.setAttribute("nickname", nickname);
                 session.setAttribute("kakaoId", kakaoId);
+                session.setAttribute("adminStatus", adminStatus);
 
                 
             }
@@ -322,6 +333,7 @@ public class AccountService {
         signInResponse.setNickname(nickname);
         signInResponse.setAccountId( accountId );
         signInResponse.setKakaoId( kakaoId );
+        signInResponse.setAdminStatus( adminStatus) ;
 
         // 리턴 정보
         rModelMap.addAttribute("success", success);
@@ -330,5 +342,88 @@ public class AccountService {
         return rModelMap;
     }
 
+    public ModelMap getAccountAll(String useYn) {
+         ModelMap rModelMap = new ModelMap();
+
+         try {
+            rModelMap.addAttribute("success", "ok");
+            rModelMap.addAttribute("accountInfo", accountRepository.findByUseYn(useYn));
+
+         } catch (Exception e) {
+            e.printStackTrace();
+            rModelMap.addAttribute("success", "fail");
+            rModelMap.addAttribute("reason", "unKnown cause");
+         }
+ 
+         return rModelMap;
+    }
+    @Transactional
+    public ModelMap setAccountAdminStatus(AccountForPermitAdmin request) {
+        ModelMap rModelMap = new ModelMap();
+
+        try {
+            Account account = accountRepository.findByAccountIdAndUseYn(request.getAccountId(),"Y");
+
+            if(Objects.isNull(account)) {
+                    rModelMap.addAttribute("success", "fail");
+                    rModelMap.addAttribute("reason", "사용자 미존재");
+                    return rModelMap;
+            }
+
+            AccountDto.dsAccount accountDto = new AccountDto.dsAccount();
+            
+            if (account.getAdminStatus().equals("Y"))
+                accountDto.setAdminStatus("N");
+            else 
+                accountDto.setAdminStatus("Y");
+
+            account.updateAccount(accountDto);
+            rModelMap.addAttribute("success", "ok");
+            rModelMap.addAttribute("account",account);
+           
+
+        } catch (Exception e) {
+           e.printStackTrace();
+           rModelMap.addAttribute("success", "fail");
+           rModelMap.addAttribute("reason", "unKnown cause");
+        }
+
+        return rModelMap;
+    }
+
+    @Transactional
+    public ModelMap setActivateAccountStatus(AccountForRemove request) {
+        ModelMap rModelMap = new ModelMap();
+
+        try {
+            Account account = accountRepository.findByAccountId(request.getAccountId());
+
+            if(Objects.isNull(account)) {
+                    rModelMap.addAttribute("success", "fail");
+                    rModelMap.addAttribute("reason", "사용자 미존재");
+                    return rModelMap;
+            }
+
+            AccountDto.dsAccount accountDto = new AccountDto.dsAccount();
+            if (account.getUseYn().equals("Y"))
+                accountDto.setUseYn("N");
+            else 
+                accountDto.setUseYn("Y");
+            account.updateAccount(accountDto);
+
+            rModelMap.addAttribute("success", "ok");
+            rModelMap.addAttribute("account",account);
+           
+
+        } catch (Exception e) {
+           e.printStackTrace();
+           rModelMap.addAttribute("success", "fail");
+           rModelMap.addAttribute("reason", "unKnown cause");
+        }
+
+        return rModelMap;
+    }
+
+   
    
 }

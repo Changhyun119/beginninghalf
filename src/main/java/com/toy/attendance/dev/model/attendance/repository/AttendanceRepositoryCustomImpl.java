@@ -51,6 +51,9 @@ public class AttendanceRepositoryCustomImpl extends QuerydslRepositorySupport im
         if (Objects.nonNull( request.getAttendanceDate() ) ) {
             strWhere = "and atd.attendance_date ='" + request.getAttendanceDate() +"' \n";
         }
+        if (Objects.nonNull( request.getYear() ) && Objects.nonNull( request.getMonth() ) ) {
+            strWhere = "and to_char(atd.attendance_date,'YYYY-MM-DD') like '%" + request.getYear() + "-" + request.getMonth() +"%' \n";
+        }
     
         strSQL.append("select atd.attendance_id, atd.account_id, acct.nickname, atd.attendance_date ,Date(atd.reg_date) as regDate, Date(atd.updt_date) as updtDate, atd.use_yn, atd.meal_status, atd.location_id ,lct.location_name \n")
                 .append(" from  attendance atd  \n")
@@ -61,6 +64,52 @@ public class AttendanceRepositoryCustomImpl extends QuerydslRepositorySupport im
            
          
         
+
+        return strSQL.toString();
+    }
+   
+    @Override
+    public List<AttendanceDto.attendanceStatusListResponse> findAllAttendanceStatusList(AttendanceDto.attendanceStatusListRequest request) throws Exception {
+        
+        EntityManager em = getEntityManager();
+
+        // Native Query
+        String strSQL = findAllAttendanceStatusListNativeQuery(request);
+
+        // Native Query 실행
+        Query nativeQuery = em.createNativeQuery(strSQL);
+
+        // Jpa Native Query 결과 DTO 매핑
+        JpaResultMapper jpaResultMapper = new JpaResultMapper();
+
+        // List
+        List<AttendanceDto.attendanceStatusListResponse> lResponses
+            = jpaResultMapper.list(nativeQuery, AttendanceDto.attendanceStatusListResponse.class);
+
+        em.close();
+
+        return lResponses; 
+
+    }
+
+    public String findAllAttendanceStatusListNativeQuery(AttendanceDto.attendanceStatusListRequest request) {
+        StringBuilder strSQL = new StringBuilder();
+
+        String strWhere = "\n";
+        if (Objects.nonNull( request.getYear() ) && Objects.nonNull( request.getMonth() )) {
+            strWhere = "and to_char(atd.attendance_date,'YYYY-MM-DD') like '%" + request.getYear() + "-" + request.getMonth() +"%' \n";
+        }
+        
+    
+        strSQL.append("select ac.account_id as accountId,ac.nickname as nickname, to_char(ac.reg_date,'YYYY-MM-DD') as reg_Date, count(attendance_id) as attendanceCount \n")
+                .append(" from  account ac  \n")
+                .append(" left join attendance atd on (ac.account_id = atd.account_id  \n".concat(strWhere))
+                .append("  and atd.use_yn='Y' ) ")
+                .append(" where ac.use_yn='Y' ")
+                .append(" group by ac.account_id,ac.nickname  \n")
+                .append(" order by attendanceCount ");
+           
+         
 
         return strSQL.toString();
     }

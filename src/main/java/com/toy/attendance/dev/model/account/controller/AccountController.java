@@ -52,12 +52,58 @@ public class AccountController {
         return ResponseEntity.ok(rModelMap);
     }
 
+    @PostMapping("/sign-out")
+    @ApiOperation(value = "SignOut API", notes = "로그아웃")
+    public ResponseEntity<ModelMap> signOut(HttpSession session, HttpServletResponse response) throws Exception {
+        ModelMap rModelMap = accountService.signOut(session, response);
+        
+        return ResponseEntity.ok(rModelMap);
+    }
+    
     @PostMapping("/session")
     @ApiOperation(value="session API", notes="세션 체크")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<ModelMap> sessionCheck(HttpSession session,HttpServletRequest request) {
         ModelMap rModelMap = accountService.sessionCheck(request, session);
 
+        return ResponseEntity.ok(rModelMap);
+    }
+
+    @PostMapping("/permit-admin")
+    @ApiOperation(value="관리자 권한 여부 설정 API", notes="")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<ModelMap> accountAdminStatus(@RequestBody AccountDto.AccountForPermitAdmin request) {
+        ModelMap rModelMap = accountService.setAccountAdminStatus(request);
+
+        return ResponseEntity.ok(rModelMap);
+    }
+
+    @PostMapping("/active-account")
+    @ApiOperation(value="사용자 활성화 여부 설정 API", notes="")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<ModelMap> ActivateAccountStatus(@RequestBody AccountDto.AccountForRemove request) {
+        ModelMap rModelMap = accountService.setActivateAccountStatus(request);
+
+        return ResponseEntity.ok(rModelMap);
+    }
+
+    @GetMapping("/active-all")
+    @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(value="활성 사용자 전체 목록 API", notes="")
+    public ResponseEntity<ModelMap> ActiveAccountAll() throws Exception{
+        String useYn ="Y";
+        ModelMap rModelMap = accountService.getAccountAll(useYn);
+        
+        return ResponseEntity.ok(rModelMap);
+    }
+
+    @GetMapping("/inactive-all")
+    @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(value="비활성 사용자 전체 목록 API", notes="")
+    public ResponseEntity<ModelMap> inActiveAccountAll() throws Exception{
+        String useYn ="N";
+        ModelMap rModelMap = accountService.getAccountAll(useYn);
+        
         return ResponseEntity.ok(rModelMap);
     }
 

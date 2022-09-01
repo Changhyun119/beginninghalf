@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 import io.swagger.annotations.Api;
 
@@ -23,9 +24,9 @@ public class NavController {
     //     return "/login/index.html";
     // }
 
-    @GetMapping("/common-view/**")
-    public String console(HttpServletRequest request, Model model) {
-        return "/index.html";
+    @GetMapping({"/", "/oauth/kakao/callback", "/calendar" , "/main", "/registration", "/system-admin"})
+    public ModelAndView root(HttpServletRequest request, Model model) {
+        return new ModelAndView("/index.html");
     }
 
     

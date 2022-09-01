@@ -31,6 +31,46 @@ public class AccountDto {
         private String nickname;
         private BigInteger accountId;
         private BigInteger kakaoId;
+        private String adminStatus;
+    }
+
+    @Getter
+    @Setter
+    @ToString
+    @NoArgsConstructor
+    public static class AccountForPermitAdmin {
+        private BigInteger accountId;
+        
+    }
+
+    @Getter
+    @Setter
+    @ToString
+    @NoArgsConstructor
+    public static class AccountForRemove {
+        private BigInteger accountId;
+        
+    }
+
+    
+    @Getter
+    @Setter
+    @ToString
+    @NoArgsConstructor
+    public static class dsAccount {
+        private BigInteger accountId;
+        private String useYn;
+        private String adminStatus;
+   
+        public dsAccount (
+            BigInteger accountId,
+            String useYn,
+            String adminStatus
+        ) {
+            this.accountId = accountId;
+            this.useYn = useYn;
+            this.adminStatus = adminStatus;
+        }
     }
 
 }

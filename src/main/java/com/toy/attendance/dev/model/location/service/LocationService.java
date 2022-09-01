@@ -10,6 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -23,6 +24,9 @@ import javax.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
 
+import com.toy.attendance.dev.model.attendance.dto.AttendanceDto;
+import com.toy.attendance.dev.model.attendance.entity.Attendance;
+import com.toy.attendance.dev.model.attendance.repository.AttendanceRepository;
 import com.toy.attendance.dev.model.location.dto.LocationDto;
 import com.toy.attendance.dev.model.location.entity.Location;
 import com.toy.attendance.dev.model.location.repository.LocationRepository;
@@ -32,9 +36,11 @@ import com.toy.attendance.dev.model.location.repository.LocationRepository;
 public class LocationService {
 
     private final LocationRepository locationRepository;
+    private final AttendanceRepository attendanceRepository;
 
-    public LocationService(LocationRepository locationRepository) {
+    public LocationService(LocationRepository locationRepository, AttendanceRepository attendanceRepository) {
         this.locationRepository = locationRepository;
+        this.attendanceRepository = attendanceRepository;
     }
 
 
@@ -144,12 +150,26 @@ public class LocationService {
                 rModelMap.addAttribute("location", Collections.emptyList());
                 return rModelMap;
             }
+
+            //2022-08-17 장소 삭제시 장소에 속한 사람들이 붕뜨는 오류 -> 장소삭제 전 해당 장소에 속한 인원 locationId = null 로 설정 후 삭제
+            List<Attendance> attendanceList =  attendanceRepository.findByLocationIdAndUseYn(request.getLocationId() , "Y");
+
+            AttendanceDto.dsAttendance attendanceDto = new AttendanceDto.dsAttendance();
+            System.out.println(attendanceList);
+            
+            for (Attendance attendacneData : attendanceList) {
+                System.out.println("장소에 속한 출석 데이터 ");
+                System.out.println(attendacneData.getAttendanceId());
+                attendacneData.setLocationId(null);
+            }
+
             LocationDto.dsLocation locationDto = new LocationDto.dsLocation();
             locationDto.setUseYn("N");
             location.updateLocation(locationDto);
 
             rModelMap.addAttribute("success", "ok");
         }
+
         catch (Exception e) {
             e.printStackTrace();
             rModelMap.addAttribute("success", "fail");

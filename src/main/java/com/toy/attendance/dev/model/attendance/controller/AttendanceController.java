@@ -1,6 +1,8 @@
 package com.toy.attendance.dev.model.attendance.controller;
 
 
+import java.time.LocalDate;
+
 import javax.servlet.http.HttpSession;
 
 import org.springframework.http.ResponseEntity;
@@ -56,20 +58,48 @@ public class AttendanceController {
         return ResponseEntity.ok(rModelMap);
     }
 
-    @GetMapping("/list")
+    @PostMapping("/list")
     @ApiOperation(value="출석 목록 API", notes=" ")
-    public ResponseEntity<ModelMap> getAttendance() throws Exception{
-        AttendanceDto.attendanceListRequest request = new AttendanceDto.attendanceListRequest();
-        ModelMap rModelMap = attendanceService.list(request);
+    public ResponseEntity<ModelMap> getAttendance(@RequestBody AttendanceDto.attendanceListRequestByYearAndMonth request) throws Exception{
+        AttendanceDto.attendanceListRequest serviceReq = new AttendanceDto.attendanceListRequest();
+        serviceReq.setYear(request.getYear());
+        serviceReq.setMonth(request.getMonth());
+        ModelMap rModelMap = attendanceService.list(serviceReq);
         
         return ResponseEntity.ok(rModelMap);
     }
 
     @PostMapping("/list-on-date")
     @ApiOperation(value="특정 날짜 출석 API", notes="Parameter : {'attendanceDate' : 'YYYY-MM-DD'} ")
-    public ResponseEntity<ModelMap> getAttendanceByAttendaceDate(@RequestBody AttendanceDto.attendanceListRequest request) throws Exception{
-        ModelMap rModelMap = attendanceService.list(request);
+    public ResponseEntity<ModelMap> getAttendanceByAttendaceDate(@RequestBody AttendanceDto.attendanceListRequestByAttendanceDate request) throws Exception{
+        AttendanceDto.attendanceListRequest serviceReq = new AttendanceDto.attendanceListRequest();
+        serviceReq.setAttendanceDate(request.getAttendanceDate());
+        ModelMap rModelMap = attendanceService.list(serviceReq);
         
         return ResponseEntity.ok(rModelMap);
+    }
+
+    @GetMapping("/my-attendance-count")
+    @ApiOperation(value="나의 출석 현황 보기 API", notes="Parameter : {}")
+    public ResponseEntity<ModelMap> getMyAttendanceCount(HttpSession session) throws Exception{
+        ModelMap rModelMap = attendanceService.getMyAttendanceCount(session);
+        
+        return ResponseEntity.ok(rModelMap);
+    }
+
+     
+    @PostMapping("/attendance-status-on-month")
+    @ApiOperation(value="월별 출석 현황 API", notes="Parameter : {'year' : 'YYYY' , month : 'MM'} ")
+    public ResponseEntity<ModelMap> getAttendanceStatusByMonth(@RequestBody AttendanceDto.attendanceStatusListRequest request, HttpSession session) throws Exception{
+        ModelMap rModelMap = attendanceService.getAttendanceStatusByYearAndMonth(request, session);
+        
+        return ResponseEntity.ok(rModelMap);
+    }
+
+    @GetMapping("/test")
+    public void aaa() {
+        LocalDate now = LocalDate.now();
+        System.out.println(now.toString());
+        System.out.println(now.toString().split("-")[1]);
     }
 }
