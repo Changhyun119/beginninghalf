@@ -24,7 +24,7 @@ public class NavController {
     //     return "/login/index.html";
     // }
 
-    @GetMapping({"/", "/oauth/kakao/callback", "/calendar" , "/main", "/registration", "/system-admin"})
+    @GetMapping({"/", "/oauth/kakao/callback", "/calendar" , "/main", "/registration", "/adminpage" ,"/systemadminpage", "/inactive-user-page"})
     public ModelAndView root(HttpServletRequest request, Model model) {
         return new ModelAndView("/index.html");
     }

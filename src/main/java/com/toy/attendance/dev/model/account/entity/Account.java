@@ -86,5 +86,6 @@ public class Account implements Serializable {
         if (Objects.nonNull(dto.getAccountId())) this.accountId = dto.getAccountId();
         if (Objects.nonNull(dto.getUseYn())) this.useYn = dto.getUseYn();
         if (Objects.nonNull(dto.getAdminStatus())) this.adminStatus = dto.getAdminStatus();
+        if (Objects.nonNull(dto.getNickname())) this.nickname = dto.getNickname();
     }
 }

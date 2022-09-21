@@ -30,6 +30,7 @@ import com.toy.attendance.dev.model.account.dto.AccountDto;
 import com.toy.attendance.dev.model.account.dto.AccountDto.AccountForInsert;
 import com.toy.attendance.dev.model.account.dto.AccountDto.AccountForPermitAdmin;
 import com.toy.attendance.dev.model.account.dto.AccountDto.AccountForRemove;
+import com.toy.attendance.dev.model.account.dto.AccountDto.AccountForUpdate;
 import com.toy.attendance.dev.model.account.entity.Account;
 import com.toy.attendance.dev.model.account.repository.AccountRepository;
 
@@ -300,18 +301,21 @@ public class AccountService {
                 }
             }
         }
-
+        System.out.println("세션값 : ");
+        System.out.println(session.getAttribute("kakaoId"));
+        System.out.println("쿠키값 : ");
+        System.out.println(kakaoId);
         // 세션 정보 존재하는 경우
         if (Objects.nonNull(session.getAttribute("kakaoId"))) {
-            kakaoId = new BigInteger(session.getAttribute("kakaoId").toString());
-            nickname = session.getAttribute("nickname").toString();
-            accountId = new BigInteger(session.getAttribute("accountId").toString());
-            adminStatus = session.getAttribute("adminStatus").toString();
-            success = "ok";
+            System.out.println("세션정보 확인됨");
+            kakaoId = (BigInteger) session.getAttribute("kakaoId");
         }
         // 쿠키 정보 존재하는 경우
-        else if (Objects.isNull(kakaoId)) {
-            Account account = accountRepository.findByKakaoIdAndUseYn(kakaoId, "Y");
+        else if (Objects.nonNull(kakaoId)) {
+            System.out.println("쿠키정보 확인됨");
+        }
+
+        Account account = accountRepository.findByKakaoIdAndUseYn((BigInteger) session.getAttribute("kakaoId"), "Y");
             if (Objects.nonNull(account)) {
                 nickname = account.getNickname();
                 kakaoId = account.getKakaoId();
@@ -327,7 +331,6 @@ public class AccountService {
 
                 
             }
-        }
 
         AccountDto.SignInResponse signInResponse = new AccountDto.SignInResponse();
         signInResponse.setNickname(nickname);
@@ -409,6 +412,51 @@ public class AccountService {
                 accountDto.setUseYn("N");
             else 
                 accountDto.setUseYn("Y");
+            account.updateAccount(accountDto);
+
+            rModelMap.addAttribute("success", "ok");
+            rModelMap.addAttribute("account",account);
+           
+
+        } catch (Exception e) {
+           e.printStackTrace();
+           rModelMap.addAttribute("success", "fail");
+           rModelMap.addAttribute("reason", "unKnown cause");
+        }
+
+        return rModelMap;
+    }
+
+    @Transactional
+    public ModelMap setProfile(AccountForUpdate request, HttpSession session) {
+        ModelMap rModelMap = new ModelMap();
+
+        try {
+            Account account = accountRepository.findByAccountId(request.getAccountId());
+
+            if(Objects.isNull(account)) {
+                    rModelMap.addAttribute("success", "fail");
+                    rModelMap.addAttribute("reason", "사용자 미존재");
+                    return rModelMap;
+            }
+
+            if(!(account.getAccountId().equals(session.getAttribute("accountId")))) {
+                rModelMap.addAttribute("success", "fail");
+                rModelMap.addAttribute("reason", "사용자 본인 아님");
+                return rModelMap;
+            }
+
+            if(request.getNickname().length() > 20 ) {
+                rModelMap.addAttribute("success", "fail");
+                rModelMap.addAttribute("reason", "닉네임 길이제한");
+                return rModelMap;
+            }
+             
+
+            AccountDto.dsAccount accountDto = new AccountDto.dsAccount();
+            
+            accountDto.setNickname(request.getNickname());
+            
             account.updateAccount(accountDto);
 
             rModelMap.addAttribute("success", "ok");

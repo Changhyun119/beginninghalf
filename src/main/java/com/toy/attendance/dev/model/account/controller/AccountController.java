@@ -53,6 +53,7 @@ public class AccountController {
     }
 
     @PostMapping("/sign-out")
+    @ResponseStatus(HttpStatus.OK)
     @ApiOperation(value = "SignOut API", notes = "로그아웃")
     public ResponseEntity<ModelMap> signOut(HttpSession session, HttpServletResponse response) throws Exception {
         ModelMap rModelMap = accountService.signOut(session, response);
@@ -104,6 +105,15 @@ public class AccountController {
         String useYn ="N";
         ModelMap rModelMap = accountService.getAccountAll(useYn);
         
+        return ResponseEntity.ok(rModelMap);
+    }
+
+    @PostMapping("/profile")
+    @ApiOperation(value="사용자 개인정보 수정 API", notes="")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<ModelMap> setProfile(@RequestBody AccountDto.AccountForUpdate request, HttpSession session) {
+        ModelMap rModelMap = accountService.setProfile(request, session);
+
         return ResponseEntity.ok(rModelMap);
     }
 

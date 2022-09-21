@@ -22,8 +22,19 @@ public class AccountDto {
         private String email;
         private String nickname;
         private BigInteger kakaoId;
-        private Boolean isAutoLogin = false;
+        private Boolean isAutoLogin = true;
     }
+
+    
+    @Getter
+    @Setter
+    @ToString
+    @NoArgsConstructor
+    public static class AccountForUpdate {
+        private BigInteger accountId;
+        private String nickname;
+    }
+
 
     @Getter
     @Setter
@@ -61,15 +72,18 @@ public class AccountDto {
         private BigInteger accountId;
         private String useYn;
         private String adminStatus;
+        private String nickname;
    
         public dsAccount (
             BigInteger accountId,
             String useYn,
-            String adminStatus
+            String adminStatus,
+            String nickname
         ) {
             this.accountId = accountId;
             this.useYn = useYn;
             this.adminStatus = adminStatus;
+            this.nickname = nickname;
         }
     }
 
