@@ -97,18 +97,23 @@ public class AttendanceDto {
         private String nickname;
         private String regDate;
         private BigInteger attendanceAccount;
-       
+        private BigInteger offlineCount;
+        private BigInteger onlineCount;
+
         public attendanceStatusListResponse (
             BigInteger accountId,
             String nickname,
             String regDate,
-            BigInteger attendanceAccount
-        ) {
-          
+            BigInteger attendanceAccount,
+            BigInteger offlineCount,
+            BigInteger onlineCount
+            ) {
             this.accountId = accountId;
             this.nickname = nickname;
             this.regDate = regDate;
             this.attendanceAccount = attendanceAccount;
+            this.offlineCount = offlineCount;
+            this.onlineCount = onlineCount;
         }
        
     }
@@ -149,6 +154,7 @@ public class AttendanceDto {
     public static class attendanceStatusListRequest { // service 단에서 이용할 DTO , 월별 혹은 특정일로 서치 가능하게 파라미터 종류 구분됨
         private String year; // 월별
         private String month; // 월별
+        private BigInteger accountId; // 나의 출석 현황 보기시 계정정보 필요
     }
     
 

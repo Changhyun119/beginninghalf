@@ -24,6 +24,8 @@ import javax.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
 
+import com.toy.attendance.dev.model.account.entity.Account;
+import com.toy.attendance.dev.model.account.repository.AccountRepository;
 import com.toy.attendance.dev.model.attendance.dto.AttendanceDto;
 import com.toy.attendance.dev.model.attendance.entity.Attendance;
 import com.toy.attendance.dev.model.attendance.repository.AttendanceRepository;
@@ -37,10 +39,12 @@ public class LocationService {
 
     private final LocationRepository locationRepository;
     private final AttendanceRepository attendanceRepository;
+    private final AccountRepository accountRepository;
 
-    public LocationService(LocationRepository locationRepository, AttendanceRepository attendanceRepository) {
+    public LocationService(LocationRepository locationRepository, AttendanceRepository attendanceRepository, AccountRepository accountRepository) {
         this.locationRepository = locationRepository;
         this.attendanceRepository = attendanceRepository;
+        this.accountRepository = accountRepository;
     }
 
 
@@ -141,12 +145,13 @@ public class LocationService {
                 rModelMap = this.failSessionCheck(rModelMap);
                 return rModelMap;
             }
-
+            BigInteger accountId = (BigInteger) session.getAttribute("accountId");
             Location location = locationRepository.findByLocationIdAndUseYn(request.getLocationId(),"Y");
-            if (!location.getAccountId().equals(session.getAttribute("accountId"))) {
-                System.out.println("등록한 사용자가 아님");
+            Account account = accountRepository.findByAccountIdAndUseYn(accountId, "Y");
+            if (!location.getAccountId().equals(accountId) && account.getAdminStatus().equals("N") ) {
+                System.out.println("등록한 사용자가 아님, 관리자 아님");
                 rModelMap.addAttribute("success", "fail");
-                rModelMap.addAttribute("reason", "등록한 사용자가 아닙니다!");
+                rModelMap.addAttribute("reason", "등록한 사용자 및 관리자가 아닙니다!");
                 rModelMap.addAttribute("location", Collections.emptyList());
                 return rModelMap;
             }

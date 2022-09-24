@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import javax.security.auth.message.callback.PrivateKeyCallback.Request;
 import javax.servlet.http.HttpSession;
 import javax.transaction.Transactional;
 
@@ -238,9 +239,16 @@ public class AttendanceService {
                 return rModelMap;
             }
             BigInteger accountId = (BigInteger) session.getAttribute("accountId");
-            String yearAndMonth = now.toString().split("-")[0] + "-" + now.toString().split("-")[1];
+            String year = now.toString().split("-")[0];
+            String month = now.toString().split("-")[1];
+
+            attendanceStatusListRequest request = new attendanceStatusListRequest();
+            request.setYear(year);
+            request.setMonth(month);
+            request.setAccountId(accountId);
+
             rModelMap.addAttribute("success", "ok");
-            rModelMap.addAttribute("myAttendance", attendanceRepository.findMyAttendance(accountId, yearAndMonth));
+            rModelMap.addAttribute("myAttendance", attendanceRepository.findAllAttendanceStatusList(request));
 
         }
         catch (Exception e) {

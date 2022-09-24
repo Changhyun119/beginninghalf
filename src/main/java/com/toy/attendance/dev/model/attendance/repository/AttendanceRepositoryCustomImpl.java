@@ -96,16 +96,27 @@ public class AttendanceRepositoryCustomImpl extends QuerydslRepositorySupport im
         StringBuilder strSQL = new StringBuilder();
 
         String strWhere = "\n";
+        String strWhere2 = "\n";
         if (Objects.nonNull( request.getYear() ) && Objects.nonNull( request.getMonth() )) {
             strWhere = "and to_char(atd.attendance_date,'YYYY-MM-DD') like '%" + request.getYear() + "-" + request.getMonth() +"%' \n";
         }
         
+        if(Objects.nonNull( request.getAccountId())) {
+            strWhere2 = "and ac.account_id = " + request.getAccountId();
+        }
+        
     
-        strSQL.append("select ac.account_id as accountId,ac.nickname as nickname, to_char(ac.reg_date,'YYYY-MM-DD') as reg_Date, count(attendance_id) as attendanceCount \n")
+        strSQL.append("select ac.account_id as accountId,ac.nickname as nickname, to_char(ac.reg_date,'YYYY-MM-DD') as reg_Date, count(attendance_id) as attendanceCount, \n")
+                .append(" count(case when onoff='offline' then 1 end) as offline , count(case when onoff='online' then 1 end) as online  \n")
                 .append(" from  account ac  \n")
-                .append(" left join attendance atd on (ac.account_id = atd.account_id  \n".concat(strWhere))
-                .append("  and atd.use_yn='Y' ) ")
-                .append(" where ac.use_yn='Y' ")
+                .append(" left join (select account_id ,attendance_id, ")
+                .append(" case when count(location_id) OVER(PARTITION BY location_id) > 1 then 'offline' ")
+                .append(" else 'online' ") 
+                .append(" end as onoff ") 
+                .append(" from attendance atd ")
+                .append(" where use_yn ='Y' ".concat(strWhere)) 
+                .append(" ) atd   on (ac.account_id = atd.account_id )  \n")
+                .append(" where ac.use_yn='Y' ".concat(strWhere2))
                 .append(" group by ac.account_id,ac.nickname  \n")
                 .append(" order by attendanceCount ");
            
