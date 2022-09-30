@@ -89,7 +89,7 @@ public class AttendanceController {
 
      
     @PostMapping("/attendance-status-on-month")
-    @ApiOperation(value="월별 출석 현황 API", notes="Parameter : {'year' : 'YYYY' , month : 'MM'} ")
+    @ApiOperation(value="월별 출석 현황 API", notes="Parameter : {'year' : 'YYYY' ,'month' : 'MM' , 'accountId': N (내출석보기에 자신id 사용을위해) DTO 를 controller단과 service단의 분리 안함으로 발생한 파라미터 } ")
     public ResponseEntity<ModelMap> getAttendanceStatusByMonth(@RequestBody AttendanceDto.attendanceStatusListRequest request, HttpSession session) throws Exception{
         ModelMap rModelMap = attendanceService.getAttendanceStatusByYearAndMonth(request, session);
         
