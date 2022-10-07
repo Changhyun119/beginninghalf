@@ -128,8 +128,8 @@ public class AttendanceRepositoryCustomImpl extends QuerydslRepositorySupport im
                 .append(" end as onoff ") 
                 .append(" from attendance atd ")
                 .append(" where use_yn ='Y' ") 
-                .append(" ) atd   on (ac.account_id = atd.account_id )  \n")
-                .append(" where ac.use_yn='Y' ".concat(strWhere2).concat(strWhere))
+                .append(" ) atd   on (ac.account_id = atd.account_id ".concat(strWhere))
+                .append(") where ac.use_yn='Y' ".concat(strWhere2))
                 .append(" group by ac.account_id,ac.nickname  \n")
                 .append(" order by offline, online ");
            
