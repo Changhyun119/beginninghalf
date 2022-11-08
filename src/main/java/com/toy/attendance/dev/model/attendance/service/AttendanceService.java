@@ -453,11 +453,23 @@ public class AttendanceService {
                         row= sheet.createRow(rowN+i);
                     }
                     
-                    for(int j = 0; j < 8; j++ ){
+                    for(int j = 0; j <= rowData.size(); j++ ){
                         Cell cell = row.getCell(colN+j);
                         if(cell == null) {
                             cell = row.createCell(colN+j);
                         }
+                        CellStyle cellStyle_Title = null;
+                        if(Integer.valueOf(rowData.get(rowData.size()-1 )) < 20) {
+                            cellStyle_Title = workbook.createCellStyle();
+                            cellStyle_Title.setBorderTop(BorderStyle.THIN); //테두리 위쪽
+                            cellStyle_Title.setBorderBottom(BorderStyle.THIN); //테두리 아래쪽
+                            cellStyle_Title.setBorderLeft(BorderStyle.THIN); //테두리 왼쪽
+                            cellStyle_Title.setBorderRight(BorderStyle.THIN); //테두리 오른쪽
+                            cellStyle_Title.setFillForegroundColor(IndexedColors.LEMON_CHIFFON.getIndex());  // 배경색
+                            cellStyle_Title.setFillPattern(FillPatternType.SOLID_FOREGROUND);	//채우기 적용
+
+                        }
+
                         
                         if (j==0) cell.setCellValue(i);
                         else {
@@ -465,13 +477,14 @@ public class AttendanceService {
                                 cell.setCellValue(Integer.valueOf(rowData.get(j-1)));
                             else 
                                 cell.setCellValue(rowData.get(j-1));
-                            
                         } 
+                        if(cellStyle_Title != null)
+                            cell.setCellStyle(cellStyle_Title);
                     }
                 }
 
                 //httpRes.setContentType("application/vnd.ms-excel");
-                httpRes.setHeader("Content-Disposition", "attachment;filename=attendanceExcel.xlsx");
+                httpRes.setHeader("Content-Disposition", "attachment;filename=study_" + date + ".xlsx");
 
                 
                 XSSFFormulaEvaluator.evaluateAllFormulaCells(workbook);
