@@ -155,6 +155,8 @@ public class AttendanceDto {
         private String year; // 월별
         private String month; // 월별
         private BigInteger accountId; // 나의 출석 현황 보기시 계정정보 필요
+        private String firstDayOfWeek; // Server가 생성 주차 첫날짜
+        private String endDayOfWeek;  // Server가 생성 주차 마지막 날짜
     }
     
 

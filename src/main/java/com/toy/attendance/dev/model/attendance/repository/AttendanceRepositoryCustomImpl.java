@@ -92,6 +92,10 @@ public class AttendanceRepositoryCustomImpl extends QuerydslRepositorySupport im
         if(Objects.nonNull( request.getAccountId())) {
             nativeQuery.setParameter("accountId", request.getAccountId());
         }
+        if (Objects.nonNull( request.getFirstDayOfWeek() ) && Objects.nonNull( request.getEndDayOfWeek() )) {
+            nativeQuery.setParameter("firstDayOfWeek", request.getFirstDayOfWeek());
+            nativeQuery.setParameter("endDayOfWeek", request.getEndDayOfWeek() );
+        }
         // Jpa Native Query 결과 DTO 매핑
         JpaResultMapper jpaResultMapper = new JpaResultMapper();
 
@@ -110,12 +114,17 @@ public class AttendanceRepositoryCustomImpl extends QuerydslRepositorySupport im
 
         String strWhere = "";
         String strWhere2 = "";
+        String strWhere3 = "";
         if (Objects.nonNull( request.getYear() ) && Objects.nonNull( request.getMonth() )) {
             strWhere += " and to_char(atd.attendance_date,'YYYY-MM-DD') like  '%' || :year || '-' || :month || '%' \n"; 
         }
         
         if(Objects.nonNull( request.getAccountId())) {
             strWhere2 += " and ac.account_id = :accountId" ;
+        }
+
+        if (Objects.nonNull( request.getFirstDayOfWeek() ) && Objects.nonNull( request.getEndDayOfWeek() )) {
+            strWhere3 += " and to_char(atd.attendance_date,'YYYY-MM-DD') between :firstDayOfWeek and :endDayOfWeek \n";
         }
         
     
@@ -128,7 +137,7 @@ public class AttendanceRepositoryCustomImpl extends QuerydslRepositorySupport im
                 .append(" end as onoff ") 
                 .append(" from attendance atd ")
                 .append(" where use_yn ='Y' ") 
-                .append(" ) atd   on (ac.account_id = atd.account_id ".concat(strWhere))
+                .append(" ) atd   on (ac.account_id = atd.account_id ".concat(strWhere).concat(strWhere3))
                 .append(") where ac.use_yn='Y' ".concat(strWhere2))
                 .append(" group by ac.account_id,ac.nickname  \n")
                 .append(" order by offline, online ");

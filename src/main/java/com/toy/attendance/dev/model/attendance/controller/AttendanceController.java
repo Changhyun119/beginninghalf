@@ -1,8 +1,11 @@
 package com.toy.attendance.dev.model.attendance.controller;
 
 
+import java.text.ParseException;
 import java.time.LocalDate;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.http.ResponseEntity;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.toy.attendance.dev.model.attendance.dto.AttendanceDto;
 import com.toy.attendance.dev.model.attendance.service.AttendanceService;
+import com.toy.attendance.dev.util.CalendarUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -93,13 +97,19 @@ public class AttendanceController {
     public ResponseEntity<ModelMap> getAttendanceStatusByMonth(@RequestBody AttendanceDto.attendanceStatusListRequest request, HttpSession session) throws Exception{
         ModelMap rModelMap = attendanceService.getAttendanceStatusByYearAndMonth(request, session);
         
-        return ResponseEntity.ok(rModelMap);
+        return ResponseEntity.ok(rModelMap); 
+    }
+
+    @PostMapping("/attendance-excel")
+    @ApiOperation(value="월별 출석 현황 API(주차별 횟수 엑셀출력)", notes="Parameter : {'year' : 'YYYY' ,'month' : 'MM'  } ")
+    public ResponseEntity<ModelMap> getAttendanceStatusBy(@RequestBody AttendanceDto.attendanceStatusListRequest request, HttpServletRequest httpReq, HttpServletResponse httpRes, HttpSession session) throws Exception{
+        ModelMap rModelMap = attendanceService.getWeeklyAttendanceStatus(request,httpReq, httpRes, session);
+        
+        return ResponseEntity.ok(rModelMap); 
     }
 
     @GetMapping("/test")
-    public void aaa() {
-        LocalDate now = LocalDate.now();
-        System.out.println(now.toString());
-        System.out.println(now.toString().split("-")[1]);
+    public void aaa() throws ParseException {
+        System.out.println(CalendarUtil.mondayAndSundayofMonth("2023-02"));
     }
 }
