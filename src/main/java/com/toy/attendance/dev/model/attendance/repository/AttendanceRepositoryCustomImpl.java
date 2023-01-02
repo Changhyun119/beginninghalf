@@ -10,16 +10,17 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import org.springframework.data.repository.query.Param;
 import org.hibernate.annotations.Parameter;
 import org.qlrm.mapper.JpaResultMapper;
+
 import com.toy.attendance.dev.model.attendance.dto.AttendanceDto;
 import com.toy.attendance.dev.model.attendance.entity.Attendance;
 
-public class AttendanceRepositoryCustomImpl extends QuerydslRepositorySupport implements AttendanceRepositoryCustom{
+public class AttendanceRepositoryCustomImpl extends QuerydslRepositorySupport implements AttendanceRepositoryCustom {
 
     public AttendanceRepositoryCustomImpl() {
         super(Attendance.class);
         //TODO Auto-generated constructor stub
     }
-    
+
     @Override
     public List<AttendanceDto.attendanceListResponse> findAllList(AttendanceDto.attendanceListRequest request) throws Exception {
 
@@ -30,54 +31,51 @@ public class AttendanceRepositoryCustomImpl extends QuerydslRepositorySupport im
         System.out.println(strSQL);
         // Native Query 실행
         Query nativeQuery = em.createNativeQuery(strSQL);
-        if (Objects.nonNull( request.getAttendanceDate() ) ) {
+        if (Objects.nonNull(request.getAttendanceDate())) {
             nativeQuery.setParameter("attendanceDate", request.getAttendanceDate());
         }
-        if (Objects.nonNull( request.getYear() ) && Objects.nonNull( request.getMonth() ) ) {
+        if (Objects.nonNull(request.getYear()) && Objects.nonNull(request.getMonth())) {
             nativeQuery.setParameter("year", request.getYear());
-            nativeQuery.setParameter("month", request.getMonth() );
+            nativeQuery.setParameter("month", request.getMonth());
         }
         // Jpa Native Query 결과 DTO 매핑
         JpaResultMapper jpaResultMapper = new JpaResultMapper();
 
         // List
         List<AttendanceDto.attendanceListResponse> lResponses
-            = jpaResultMapper.list(nativeQuery, AttendanceDto.attendanceListResponse.class);
+                = jpaResultMapper.list(nativeQuery, AttendanceDto.attendanceListResponse.class);
 
-        em.close();  
+        em.close();
 
-        return lResponses; 
+        return lResponses;
     }
-
-   
 
     public String findAllListNativeQuery(AttendanceDto.attendanceListRequest request) {
         StringBuilder strSQL = new StringBuilder();
 
         String strWhere = "";
-        if (Objects.nonNull( request.getAttendanceDate() ) ) {
-            strWhere += " and atd.attendance_date = :attendanceDate \n"; 
+        if (Objects.nonNull(request.getAttendanceDate())) {
+            strWhere += " and atd.attendance_date = :attendanceDate \n";
         }
-        if (Objects.nonNull( request.getYear() ) && Objects.nonNull( request.getMonth() ) ) {
-            strWhere += " and to_char(atd.attendance_date,'YYYY-MM-DD') like  '%' || :year || '-' || :month || '%' \n"; 
+        if (Objects.nonNull(request.getYear()) && Objects.nonNull(request.getMonth())) {
+            strWhere += " and to_char(atd.attendance_date,'YYYY-MM-DD') like  '%' || :year || '-' || :month || '%' \n";
         }
-    
-        strSQL.append("select atd.attendance_id, atd.account_id, acct.nickname, atd.attendance_date ,Date(atd.reg_date) as regDate, Date(atd.updt_date) as updtDate, atd.use_yn, atd.meal_status, atd.location_id ,lct.location_name \n")
-                .append(" from  attendance atd  \n")
-                .append(" join account acct on (atd.account_id = acct.account_id)  \n")
-                .append(" left join location lct on (atd.location_id = lct.location_id)  \n")
-                .append(" where atd.use_yn = 'Y' and acct.use_yn='Y' ".concat(strWhere))
-                .append(" order by acct.nickname  \n");
-           
-         
-        
+
+        strSQL.append(
+                      "select atd.attendance_id, atd.account_id, acct.nickname, atd.attendance_date ,Date(atd.reg_date) as regDate, Date(atd.updt_date) as updtDate, atd.use_yn, atd.meal_status, atd.location_id ,lct.location_name \n")
+              .append(" from  attendance atd  \n")
+              .append(" join account acct on (atd.account_id = acct.account_id)  \n")
+              .append(" left join location lct on (atd.location_id = lct.location_id)  \n")
+              .append(" where atd.use_yn = 'Y' and acct.use_yn='Y' ".concat(strWhere))
+              .append(" order by acct.nickname  \n");
 
         return strSQL.toString();
     }
-   
+
     @Override
-    public List<AttendanceDto.attendanceStatusListResponse> findAllAttendanceStatusList(AttendanceDto.attendanceStatusListRequest request) throws Exception {
-        
+    public List<AttendanceDto.attendanceStatusListResponse> findAllAttendanceStatusList(AttendanceDto.attendanceStatusListRequest request)
+            throws Exception {
+
         EntityManager em = getEntityManager();
 
         // Native Query
@@ -85,27 +83,32 @@ public class AttendanceRepositoryCustomImpl extends QuerydslRepositorySupport im
 
         // Native Query 실행
         Query nativeQuery = em.createNativeQuery(strSQL);
-        if (Objects.nonNull( request.getYear() ) && Objects.nonNull( request.getMonth() )) {
-            nativeQuery.setParameter("year", request.getYear());
-            nativeQuery.setParameter("month", request.getMonth() );
-        }
-        if(Objects.nonNull( request.getAccountId())) {
+
+        if (Objects.nonNull(request.getAccountId())) {
             nativeQuery.setParameter("accountId", request.getAccountId());
         }
-        if (Objects.nonNull( request.getFirstDayOfWeek() ) && Objects.nonNull( request.getEndDayOfWeek() )) {
+
+        if (Objects.nonNull(request.getFirstDayOfWeek()) && Objects.nonNull(request.getEndDayOfWeek())) {
             nativeQuery.setParameter("firstDayOfWeek", request.getFirstDayOfWeek());
-            nativeQuery.setParameter("endDayOfWeek", request.getEndDayOfWeek() );
+            nativeQuery.setParameter("endDayOfWeek", request.getEndDayOfWeek());
+        } else if (Objects.nonNull(request.getStartDate()) && Objects.nonNull(request.getEndDate())) {
+            nativeQuery.setParameter("startDate", request.getStartDate());
+            nativeQuery.setParameter("endDate", request.getEndDate());
+        } else if (Objects.nonNull(request.getYear()) && Objects.nonNull(request.getMonth())) {
+            nativeQuery.setParameter("year", request.getYear());
+            nativeQuery.setParameter("month", request.getMonth());
         }
+
         // Jpa Native Query 결과 DTO 매핑
         JpaResultMapper jpaResultMapper = new JpaResultMapper();
 
         // List
         List<AttendanceDto.attendanceStatusListResponse> lResponses
-            = jpaResultMapper.list(nativeQuery, AttendanceDto.attendanceStatusListResponse.class);
+                = jpaResultMapper.list(nativeQuery, AttendanceDto.attendanceStatusListResponse.class);
 
         em.close();
 
-        return lResponses; 
+        return lResponses;
 
     }
 
@@ -114,35 +117,33 @@ public class AttendanceRepositoryCustomImpl extends QuerydslRepositorySupport im
 
         String strWhere = "";
         String strWhere2 = "";
-        String strWhere3 = "";
-        if (Objects.nonNull( request.getYear() ) && Objects.nonNull( request.getMonth() )) {
-            strWhere += " and to_char(atd.attendance_date,'YYYY-MM-DD') like  '%' || :year || '-' || :month || '%' \n"; 
-        }
-        
-        if(Objects.nonNull( request.getAccountId())) {
-            strWhere2 += " and ac.account_id = :accountId" ;
+
+        if (Objects.nonNull(request.getAccountId())) {
+            strWhere2 += " and ac.account_id = :accountId";
         }
 
-        if (Objects.nonNull( request.getFirstDayOfWeek() ) && Objects.nonNull( request.getEndDayOfWeek() )) {
-            strWhere3 += " and to_char(atd.attendance_date,'YYYY-MM-DD') between :firstDayOfWeek and :endDayOfWeek \n";
+        if (Objects.nonNull(request.getFirstDayOfWeek()) && Objects.nonNull(request.getEndDayOfWeek())) {
+            strWhere += " and to_char(atd.attendance_date,'YYYY-MM-DD') between :firstDayOfWeek and :endDayOfWeek \n";
+        } else if (Objects.nonNull(request.getStartDate()) && Objects.nonNull(request.getEndDate())) {
+            strWhere += " and to_char(atd.attendance_date,'YYYY-MM-DD') between :startDate and :endDate \n";
+        } else if (Objects.nonNull(request.getYear()) && Objects.nonNull(request.getMonth())) {
+            strWhere += " and to_char(atd.attendance_date,'YYYY-MM-DD') like  '%' || :year || '-' || :month || '%' \n";
         }
-        
-    
-        strSQL.append("select ac.account_id as accountId,ac.nickname as nickname, to_char(ac.reg_date,'YYYY-MM-DD') as reg_Date, count(attendance_id) as attendanceCount, \n")
-                .append(" count(case when onoff='offline' then 1 end) as offline , count(case when onoff='online' then 1 end) as online  \n")
-                .append(" from  account ac  \n")
-                .append(" left join (select account_id ,attendance_id, attendance_date,")
-                .append(" case when count(location_id) OVER(PARTITION BY location_id) > 1 then 'offline' ")
-                .append(" else 'online' ") 
-                .append(" end as onoff ") 
-                .append(" from attendance atd ")
-                .append(" where use_yn ='Y' ") 
-                .append(" ) atd   on (ac.account_id = atd.account_id ".concat(strWhere).concat(strWhere3))
-                .append(") where ac.use_yn='Y' ".concat(strWhere2))
-                .append(" group by ac.account_id,ac.nickname  \n")
-                .append(" order by offline, online ");
-           
-         
+
+        strSQL.append(
+                      "select ac.account_id as accountId,ac.nickname as nickname, to_char(ac.reg_date,'YYYY-MM-DD') as reg_Date, count(attendance_id) as attendanceCount, \n")
+              .append(" count(case when onoff='offline' then 1 end) as offline , count(case when onoff='online' then 1 end) as online  \n")
+              .append(" from  account ac  \n")
+              .append(" left join (select account_id ,attendance_id, attendance_date,")
+              .append(" case when count(location_id) OVER(PARTITION BY location_id) > 1 then 'offline' ")
+              .append(" else 'online' ")
+              .append(" end as onoff ")
+              .append(" from attendance atd ")
+              .append(" where use_yn ='Y' ")
+              .append(" ) atd   on (ac.account_id = atd.account_id ".concat(strWhere))
+              .append(") where ac.use_yn='Y' ".concat(strWhere2))
+              .append(" group by ac.account_id,ac.nickname  \n")
+              .append(" order by offline, online ");
 
         return strSQL.toString();
     }
