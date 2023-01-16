@@ -296,7 +296,8 @@ public class AttendanceService {
                                               HttpServletResponse httpRes,
                                               HttpSession session) {
         ModelMap rModelMap = new ModelMap();
-
+        final int OFFLINE_POINT = 10;
+        final int ONLINE_POINT = 0;
         try {
             String filePath = excelRootPath;
             String sheetName = "sheet1";
@@ -327,7 +328,7 @@ public class AttendanceService {
 
                 System.out.printf("First : %s , End  : %s ", atdSLR.getFirstDayOfWeek(), atdSLR.getEndDayOfWeek());
                 for (attendanceStatusListResponse row : attendanceRepository.findAllAttendanceStatusList(atdSLR)) { // N 주차 출석정보 추출
-                    long nowPoint = row.getOfflineCount().longValue() * 10 + row.getOnlineCount().longValue() * 2;
+                    long nowPoint = row.getOfflineCount().longValue() * OFFLINE_POINT + row.getOnlineCount().longValue() * ONLINE_POINT;
                     List<Long> weekData = null;
                     if (i == 0) { // id 있는지 체크 후 생성 보다는 이게 더 속도빠름
                         weekData = new ArrayList<Long>();
@@ -350,7 +351,7 @@ public class AttendanceService {
 
                 // list 생성해서  [{id ,nickname , frist, second, thrid, forth ,총점(현재 점수)} , {id, nickname, points} ...]  수
             }
-            // hashMap -> List 로 변경하는 과정 
+            // hashMap -> List 로 변경하는 과정
             //nickname : 0 , weekArr : 1, 2, 3, 4  , sum : 5
             List<List<String>> listData = new ArrayList<List<String>>();
             for (String strKey : mapData.keySet()) {
@@ -380,7 +381,7 @@ public class AttendanceService {
             });
 
             //listData
-            // 순차적으로 excel 에 row 생성 
+            // 순차적으로 excel 에 row 생성
             final CellCopyPolicy defaultCopyPolicy = new CellCopyPolicy();
 
             FileInputStream excelFile = new FileInputStream(filePath + excelFileName);
@@ -466,7 +467,7 @@ public class AttendanceService {
 
             }
 
-            // insert 후 전송 
+            // insert 후 전송
 
             rModelMap.addAttribute("success", "ok");
 
