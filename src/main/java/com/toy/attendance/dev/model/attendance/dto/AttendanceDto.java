@@ -122,6 +122,9 @@ public class AttendanceDto {
             this.onlineCount = onlineCount;
         }
 
+        public void setOnlineCount(BigInteger onlineCount) {
+            this.onlineCount = onlineCount;
+        }
     }
 
     @Getter

@@ -48,6 +48,7 @@ public class AttendanceService {
     private final AttendanceRepository attendanceRepository;
     private final AccountService accountService;
 
+    final int ONLINE_POINT_ZERO = 0;
     private String excelRootPath = System.getProperty("user.dir") + File.separator + "excel" + File.separator;
 
     public AttendanceService(AttendanceRepository attendanceRepository, AccountService accountService) {
@@ -235,6 +236,7 @@ public class AttendanceService {
     public ModelMap getMyAttendanceCount(HttpSession session) {
         ModelMap rModelMap = new ModelMap();
         final int NOW = 0;
+
         try {
             if (this.sessionIsNull(session)) {
                 rModelMap = this.failSessionCheck(rModelMap);
@@ -250,7 +252,11 @@ public class AttendanceService {
             request.setAccountId(accountId);
 
             rModelMap.addAttribute("success", "ok");
-            rModelMap.addAttribute("myAttendance", attendanceRepository.findAllAttendanceStatusList(request));
+            //temp
+            List<AttendanceDto.attendanceStatusListResponse> myAttendance = attendanceRepository.findAllAttendanceStatusList(request);
+            myAttendance.get(0).setOnlineCount(BigInteger.valueOf(ONLINE_POINT_ZERO));
+
+            rModelMap.addAttribute("myAttendance", myAttendance);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -278,8 +284,13 @@ public class AttendanceService {
                 return rModelMap;
             }
 
+            List<AttendanceDto.attendanceStatusListResponse> myAttendance = attendanceRepository.findAllAttendanceStatusList(request);
+            for (AttendanceDto.attendanceStatusListResponse attd : myAttendance) {
+                attd.setOnlineCount(BigInteger.valueOf(ONLINE_POINT_ZERO));
+            }
+
             rModelMap.addAttribute("success", "ok");
-            rModelMap.addAttribute("attendanceList", attendanceRepository.findAllAttendanceStatusList(request));
+            rModelMap.addAttribute("attendanceList", myAttendance);
 
         } catch (Exception e) {
             e.printStackTrace();
